@@ -1400,9 +1400,6 @@
   <module name="ns-3-allinone">
       <source type="none"/>
       <depends_on name="netanim" optional="True"/>
-      <depends_on name="castxml" optional="True"/>
-      <depends_on name="pygccxml" optional="True"/>
-      <depends_on name="pybindgen" optional="True"/>
       <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
       <depends_on name="click-dev" optional="True"/>
       <depends_on name="openflow-dev" optional="True"/>
