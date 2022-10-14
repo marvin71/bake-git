@@ -1418,7 +1418,6 @@
         <attribute name="url" value="https://gitlab.com/nsnam/ns-3-dev.git"/>
         <attribute name="branch" value="master"/>
       </source>
-      <depends_on name="netanim" optional="True"/>
       <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
       <depends_on name="cmake" optional="False"/>
       <build type="cmake" objdir="cmake_cache">
