@@ -610,6 +610,17 @@
       </build>
     </module>
 
+    <module name="click-ns-3.37">
+      <source type="git">
+        <attribute name="url" value="https://github.com/kohler/click.git"/>
+        <attribute name="revision" value="9197a594b1c314264935106297aff08d97cbe7ee"/>
+      </source>
+      <build type="autotools" objdir="objdir">
+        <attribute name="configure_arguments" value="../configure --prefix=$INSTALLDIR --exec-prefix=$INSTALLDIR -enable-userlevel --disable-linuxmodule --enable-nsclick --enable-wifi"/>
+        <attribute name="post_installation" value="mkdir $INSTALLDIR/lib; cp -r $OBJDIR/include $INSTALLDIR/lib/."/> 
+      </build>
+    </module>
+
     <module name="click-2.0.1">
       <source type="git">
         <attribute name="url" value="https://github.com/kohler/click.git"/>
