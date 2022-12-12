@@ -352,11 +352,13 @@
        <source type="git">
          <attribute name="url" value="https://github.com/libos-nuse/net-next-nuse.git"/>
          <attribute name="module_directory" value="net-next-nuse-4.4.0"/>
-         <attribute name="revision" value="dba16ad4d1a316ef4865c1b4e1030df8a9cda504"/>
+         <attribute name="revision" value="libos-v4.4"/>
          <attribute name="fetch_option" value=""/>
        </source>
        <depends_on name="bc" optional="False"/>
        <build type="make">
+        <!-- cherry-pick change from net-next-nuse commit 66866702d65-->
+        <attribute name="pre_installation" value="cd $SRCDIR; sed 's/git:/https:/' arch/lib/Makefile > tmp; mv tmp arch/lib/Makefile"/>
          <attribute name="supported_os" value="linux;linux2"/>
          <attribute name="configure_arguments" value="defconfig ARCH=lib"/>
          <attribute name="build_arguments" value="library ARCH=lib"/>
