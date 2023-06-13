@@ -177,6 +177,47 @@
       </build>
      </module>
 
+    <module name="linux-dev">
+      <source type="git">
+        <attribute name="url" value="git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git" />
+        <attribute name="revision" value="master" />
+        <attribute name="module_directory" value="linux" />
+      </source>
+      <depends_on name="glibc-2.31" optional="False" />
+      <build type="make" objdir="yes">
+        <attribute name="build_arguments" value="headers_install INSTALL_HDR_PATH=$INSTALLDIR/glibc/usr" />
+        <attribute name="no_installation" value="True"/>
+      </build>
+     </module>
+
+    <module name="glibc-2.31">
+      <source type="git">
+        <attribute name="url" value="https://sourceware.org/git/glibc.git" />
+        <attribute name="revision" value="release/2.31/master" />
+        <attribute name="module_directory" value="glibc" />
+      </source>
+      <depends_on name="gawk" optional="False"/>
+      <build type="inline" classname="GlibcModuleBuild">
+        <attribute name="patch" value="$SRCDIR/../ns-3-dce/utils/glibc-2.31-disable-security-checks.patch"/>
+        <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/glibc-build;cd $INSTALLDIR/glibc-build;$SRCDIR/configure --prefix=/usr --disable-werror" />        
+        <code>class GlibcModuleBuild(InlineModuleBuild):
+    def __init__(self):
+        InlineModuleBuild.__init__(self)
+    def build(self, env, jobs):
+           build_dir = env.installdir + '/glibc-build'
+           install_dir = env.installdir + '/glibc'
+           dest_dir = 'DESTDIR=' + install_dir
+           env.run(['mkdir', '-p', install_dir], directory=env.srcdir)
+           env.run(['make'], directory=build_dir)
+           env.run(['make', 'install', dest_dir], directory=build_dir)
+    def clean(self, env):
+           build_dir = env.installdir + '/glibc-build'
+           env.run(['make', 'clean'], directory=build_dir)
+    def check_version(self, env):
+           return True</code>
+      </build>
+     </module>
+    
     <module name="libdb-dev">
       <source type="system_dependency">
         <attribute name="dependency_test" value="db_185.h"/>
@@ -359,6 +400,23 @@
        <build type="make">
         <!-- cherry-pick change from net-next-nuse commit 66866702d65-->
         <attribute name="pre_installation" value="cd $SRCDIR; sed 's/git:/https:/' arch/lib/Makefile > tmp; mv tmp arch/lib/Makefile"/>
+         <attribute name="supported_os" value="linux;linux2"/>
+         <attribute name="configure_arguments" value="defconfig ARCH=lib"/>
+         <attribute name="build_arguments" value="library ARCH=lib"/>
+         <attribute name="no_installation" value="True"/>
+         <attribute name="post_installation" value="mkdir -p $INSTALLDIR/bin_dce; cd $INSTALLDIR/bin_dce; cp $SRCDIR/arch/lib/tools/libsim-linux-4.4.0.so ./; ln -s -f libsim-linux-4.4.0.so liblinux.so"/>
+       </build>
+     </module>
+
+     <module name="net-next-nuse-4.4.0-fix1">
+       <source type="git">
+         <attribute name="url" value="https://github.com/libos-nuse/net-next-nuse.git"/>
+         <attribute name="module_directory" value="net-next-nuse-4.4.0"/>
+         <attribute name="revision" value="libos-v4.4-fix1"/>
+         <attribute name="fetch_option" value=""/>
+       </source>
+       <depends_on name="bc" optional="False"/>
+       <build type="make">
          <attribute name="supported_os" value="linux;linux2"/>
          <attribute name="configure_arguments" value="defconfig ARCH=lib"/>
          <attribute name="build_arguments" value="library ARCH=lib"/>
@@ -1330,7 +1388,9 @@
 
     <module name="libc-debug">
       <source type="system_dependency">
-        <attribute name="file_test" value="/usr/lib/debug/lib64/ld-linux-x86-64.so.2.debug or /usr/lib/debug/lib/x86_64-linux-gnu/ld-2.25.so or /usr/lib/debug/lib/x86_64-linux-gnu/ld-2.24.so or /usr/lib/debug/lib/x86_64-linux-gnu/ld-2.23.so /usr/lib/debug/lib/x86_64-linux-gnu/ld-2.22.so or /usr/lib/debug/lib/x86_64-linux-gnu/ld-2.21.so or /usr/lib/debug/lib/x86_64-linux-gnu/ld-2.20.so or /usr/lib/debug/lib/x86_64-linux-gnu/ld-2.19.so or /usr/lib/debug/lib/x86_64-linux-gnu/ld-2.18.so or /usr/lib/debug/lib/x86_64-linux-gnu/ld-2.17.so or /usr/lib/debug/lib/x86_64-linux-gnu/ld-2.16.so or /usr/lib/debug/lib/x86_64-linux-gnu/ld-2.15.so or/usr/lib/debug/lib/i386-linux-gnu/ld-2.25.so or /usr/lib/debug/lib/i386-linux-gnu/ld-2.24.so or /usr/lib/debug/lib/i386-linux-gnu/ld-2.23.so or /usr/lib/debug/lib/i386-linux-gnu/ld-2.22.so or /usr/lib/debug/lib/i386-linux-gnu/ld-2.21.so or /usr/lib/debug/lib/i386-linux-gnu/ld-2.20.so or /usr/lib/debug/lib/i386-linux-gnu/ld-2.19.so or /usr/lib/debug/lib/i386-linux-gnu/ld-2.18.so or /usr/lib/debug/lib/i386-linux-gnu/ld-2.17.so or /usr/lib/debug/lib/i386-linux-gnu/ld-2.16.so or /usr/lib/debug/lib/i386-linux-gnu/ld-2.15.so"/>
+      <!-- Note libc6-dbg installs a different debug filename and path -->
+      <!---(/usr/lib/debug/.build-id/...) starting with Ubuntu 20.04   -->
+      <attribute name="file_test" value="/usr/lib/debug/.build-id/00/329f3d85e153a01672b77b853beda0faf0dee6.debug or /usr/lib/debug/lib/x86_64-linux-gnu/ld-2.25.so or /usr/lib/debug/lib/x86_64-linux-gnu/ld-2.24.so or /usr/lib/debug/lib/x86_64-linux-gnu/ld-2.23.so"/>
         <attribute name="name_apt-get" value="libc6-dbg"/>
         <attribute name="name_yum" value="glibc-debuginfo"/>
         <attribute name="more_information" value="Didn't find:   libc debug package; please install it."/>
@@ -2430,6 +2490,69 @@
         <attribute name="revision" value="dce-1.11"/>
       </source>
        <depends_on name="dce-meta-1.11" optional="False"/>
+       <depends_on name="quagga" optional="False"/>
+       <depends_on name="iputils" optional="False"/>
+      <build type="none">
+        <attribute name="supported_os" value="linux;linux2"/>
+        <!-- attribute name="configure_arguments" value="configure -prefix=$INSTALLDIR"/ -->
+     </build>
+    </module>
+
+    <!-- dce-1.12 -->
+    <module name="dce-meta-1.12">
+      <source type="git">
+	<attribute name="url" value="https://github.com/direct-code-execution/ns-3-dce.git"/>        
+        <attribute name="module_directory" value="ns-3-dce"/>
+        <attribute name="revision" value="dce-1.12"/>
+      </source>
+      <depends_on name="ns-3.35" optional="False"/>
+      <depends_on name="glibc-2.31" optional="False"/>
+      <depends_on name="linux-dev" optional="False"/>
+      <depends_on name="libaspect" optional="True"/>
+      <depends_on name="iperf" optional="True"/>
+      <depends_on name="wget" optional="True"/>
+      <depends_on name="thttpd" optional="True"/>
+      <depends_on name="bash" optional="True"/>
+      <build type="none">
+      </build>
+    </module>
+
+    <module name="dce-ns3-1.12">
+      <source type="git">
+	<attribute name="url" value="https://github.com/direct-code-execution/ns-3-dce.git"/>        
+        <attribute name="module_directory" value="ns-3-dce"/>
+        <attribute name="revision" value="dce-1.12"/>
+      </source>
+      <depends_on name="dce-meta-1.12" optional="False"/>
+      <build type="waf" objdir="build">
+        <attribute name="supported_os" value="linux;linux2"/>
+        <attribute name="configure_arguments" value="configure --with-ns3=$INSTALLDIR --with-glibc=$INSTALLDIR/glibc --with-libaspect=$INSTALLDIR --prefix=$INSTALLDIR" />
+      </build>
+    </module>
+
+    <module name="dce-linux-1.12">
+      <source type="git">
+        <attribute name="url" value="https://github.com/direct-code-execution/ns-3-dce.git"/>        
+        <attribute name="module_directory" value="ns-3-dce"/>
+        <attribute name="revision" value="dce-1.12"/>
+      </source>
+      <depends_on name="dce-meta-1.12" optional="False"/>
+      <depends_on name="net-next-nuse-4.4.0-fix1" optional="False"/>
+      <depends_on name="iproute2-4.4.0" optional="False"/>
+      <depends_on name="lksctp-dev" optional="True"/>
+      <build type="waf" objdir="objdir" sourcedir="ns-3-dce">
+        <attribute name="supported_os" value="linux;linux2"/>
+        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-glibc=$INSTALLDIR/glibc --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../net-next-nuse-4.4.0/arch"/>
+      </build>
+    </module>
+
+    <module name="dce-quagga-1.12">
+      <source type="git">
+        <attribute name="url" value="https://github.com/direct-code-execution/ns-3-dce-quagga"/>
+        <attribute name="module_directory" value="ns-3-dce/myscripts/ns-3-dce-quagga/"/>
+        <attribute name="revision" value="dce-1.12"/>
+      </source>
+       <depends_on name="dce-meta-1.12" optional="False"/>
        <depends_on name="quagga" optional="False"/>
        <depends_on name="iputils" optional="False"/>
       <build type="none">
