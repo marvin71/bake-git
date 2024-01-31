@@ -2621,6 +2621,97 @@
      </build>
     </module>
 
+    <!-- dce-simbricks-1.12 -->
+    <module name="ns-3.38-simbricks">
+      <source type="git">
+        <attribute name="url" value="https://github.com/marvin71/simbricks.git"/>
+        <attribute name="module_directory" value="simbricks"/>
+        <attribute name="branch" value="m-e2e-dce"/>
+      </source>
+      <build type="inline"  classname="SimbricksNs3Build">
+        <attribute name="supported_os" value="linux;linux2"/>
+        <attribute name="new_variable" value="SIMBRICKS_PATH=$SRCDIR"/>
+        <code>class SimbricksNs3Build(InlineModuleBuild):
+    def __init__(self):
+        InlineModuleBuild.__init__(self)
+    def build(self, env, jobs):
+        import os
+        import shutil
+        import glob
+
+        jobstr=[]
+        if not jobs == -1:
+            jobstr = ['-j', str(jobs)]
+        env.run(['git', 'submodule', 'update', '--init', 'sims/external/ns-3'], directory=env.srcdir)
+        env.run(['make'] + jobstr, directory=env.srcdir)
+        ns3_path = os.path.join(env.srcdir, 'sims/external/ns-3')
+        env._logger.commands.write("NS3 directory: " + ns3_path + "\n")
+        env.run(['./ns3', 'configure', '--build-profile=default', '--enable-examples', '--prefix=' + env.installdir], directory=ns3_path)
+        env.run(['./ns3', 'build'], directory=ns3_path)
+        cwd_save = os.getcwd()
+        pkgconfig_path = os.path.join(ns3_path, 'cmake-cache/pkgconfig')
+        os.chdir(pkgconfig_path)
+        pc_files = glob.glob('*.pc')
+        os.chdir(cwd_save)
+        env.run(['sed', '-i', 's/-l-l/-l/g'] + pc_files, directory=pkgconfig_path)
+        env.run(['./ns3', 'install'], directory=ns3_path)
+       
+    def clean(self, env):
+        env.run(['make', 'clean'], directory=env.srcdir)
+        ns3_path = os.path.join(env.srcdir, 'sims/external/ns-3')
+        env.run(['./ns3', 'clean'], directory=ns3_path)
+    def check_version(self, env):
+        return True</code>
+      </build>
+    </module>
+
+    <module name="dce-simbricks-meta-1.12">
+      <source type="git">
+	<attribute name="url" value="https://github.com/marvin71/ns-3-dce.git"/>        
+        <attribute name="module_directory" value="ns-3-dce"/>
+        <attribute name="branch" value="simbricks"/>
+      </source>
+      <depends_on name="ns-3.38-simbricks" optional="False"/>
+      <depends_on name="glibc-2.31" optional="False"/>
+      <depends_on name="linux-dev" optional="False"/>
+      <depends_on name="libaspect" optional="True"/>
+      <depends_on name="iperf" optional="True"/>
+      <depends_on name="wget" optional="True"/>
+      <depends_on name="thttpd" optional="True"/>
+      <depends_on name="bash" optional="True"/>
+      <build type="none">
+      </build>
+    </module>
+
+    <module name="dce-simbricks-ns3-1.12">
+      <source type="git">
+	<attribute name="url" value="https://github.com/marvin71/ns-3-dce.git"/>        
+        <attribute name="module_directory" value="ns-3-dce"/>
+        <attribute name="branch" value="simbricks"/>
+      </source>
+      <depends_on name="dce-simbricks-meta-1.12" optional="False"/>
+      <build type="waf" objdir="build">
+        <attribute name="supported_os" value="linux;linux2"/>
+        <attribute name="configure_arguments" value="configure --with-ns3=$INSTALLDIR --with-glibc=$INSTALLDIR/glibc --with-libaspect=$INSTALLDIR --prefix=$INSTALLDIR" />
+      </build>
+    </module>
+
+    <module name="dce-simbricks-linux-1.12">
+      <source type="git">
+	<attribute name="url" value="https://github.com/marvin71/ns-3-dce.git"/>        
+        <attribute name="module_directory" value="ns-3-dce"/>
+        <attribute name="branch" value="simbricks"/>
+      </source>
+      <depends_on name="dce-simbricks-meta-1.12" optional="False"/>
+      <depends_on name="net-next-nuse-4.4.0-fix1" optional="False"/>
+      <depends_on name="iproute2-4.4.0" optional="False"/>
+      <depends_on name="lksctp-dev" optional="True"/>
+      <build type="waf" objdir="objdir" sourcedir="ns-3-dce">
+        <attribute name="supported_os" value="linux;linux2"/>
+        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-glibc=$INSTALLDIR/glibc --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../net-next-nuse-4.4.0/arch"/>
+      </build>
+    </module>
+
 <!--  Bake specific dependencies -->
     <module name="mercurial">
       <source type="system_dependency">
@@ -2761,6 +2852,12 @@
   <predefined name="ns3-min">
     <enable name="ns-3-dev"/>
     <append module="ns-3-dev" name="configure_arguments" value=" --enable-modules=core,network,wifi"/> -->
+  </predefined>
+
+  <predefined name="dce-simbricks-ns3">
+    <enable name="dce-simbricks-ns3-1.12"/>
+    <disable name="libaspect"/>
+    <disable name="thttpd"/>
   </predefined>
 
 </configuration>
