@@ -2659,15 +2659,16 @@
         env.run(['make'] + jobstr, directory=env.srcdir)
         ns3_path = os.path.join(env.srcdir, 'sims/external/ns-3')
         env._logger.commands.write("NS3 directory: " + ns3_path + "\n")
-        env.run(['./ns3', 'configure', '--build-profile=default', '--enable-examples', '--prefix=' + env.installdir], directory=ns3_path)
-        env.run(['./ns3', 'build'] + jobstr, directory=ns3_path)
+        sp_env = {'SIMBRICKS_PATH': env.srcdir}
+        env.run(['./ns3', 'configure', '--build-profile=default', '--enable-examples', '--prefix=' + env.installdir], directory=ns3_path, env=sp_env)
+        env.run(['./ns3', 'build'] + jobstr, directory=ns3_path, env=sp_env)
         cwd_save = os.getcwd()
         pkgconfig_path = os.path.join(ns3_path, 'cmake-cache/pkgconfig')
         os.chdir(pkgconfig_path)
         pc_files = glob.glob('*.pc')
         os.chdir(cwd_save)
         env.run(['sed', '-i', 's/-l-l/-l/g'] + pc_files, directory=pkgconfig_path)
-        env.run(['./ns3', 'install'], directory=ns3_path)
+        env.run(['./ns3', 'install'], directory=ns3_path, env=sp_env)
        
     def clean(self, env):
         env.run(['make', 'clean'], directory=env.srcdir)
