@@ -2661,7 +2661,8 @@
         env._logger.commands.write("NS3 directory: " + ns3_path + "\n")
         sp_env = {'SIMBRICKS_PATH': env.srcdir}
         env.run(['./ns3', 'configure', '--build-profile=default', '--enable-examples', '--prefix=' + env.installdir], directory=ns3_path, env=sp_env)
-        env.run(['./ns3', 'build'] + jobstr, directory=ns3_path, env=sp_env)
+        #env.run(['./ns3', 'build'] + jobstr, directory=ns3_path, env=sp_env)
+        env.run(['cmake', '--build', '.'] + jobstr, directory=os.path.join(ns3_path, 'cmake-cache'), env=sp_env)
         cwd_save = os.getcwd()
         pkgconfig_path = os.path.join(ns3_path, 'cmake-cache/pkgconfig')
         os.chdir(pkgconfig_path)
