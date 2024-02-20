@@ -191,9 +191,9 @@
      </module>
 
     <module name="glibc-2.31">
-      <source type="git">
-        <attribute name="url" value="https://sourceware.org/git/glibc.git" />
-        <attribute name="revision" value="release/2.31/master" />
+      <source type="archive">
+        <attribute name="url" value="https://ftp.gnu.org/gnu/glibc/glibc-2.31.tar.xz" />
+        <attribute name="extract_directory" value="glibc-2.31" />
         <attribute name="module_directory" value="glibc" />
       </source>
       <depends_on name="gawk" optional="False"/>
@@ -2622,6 +2622,19 @@
     </module>
 
     <!-- dce-simbricks-1.12 -->
+    <module name="linux-6.7.5">
+      <source type="archive">
+        <attribute name="url" value="https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.7.5.tar.xz" />
+        <attribute name="extract_directory" value="linux-6.7.5" />
+        <attribute name="module_directory" value="linux" />
+      </source>
+      <depends_on name="glibc-2.31" optional="False" />
+      <build type="make" objdir="yes">
+        <attribute name="build_arguments" value="headers_install INSTALL_HDR_PATH=$INSTALLDIR/glibc/usr" />
+        <attribute name="no_installation" value="True"/>
+      </build>
+    </module>
+
     <module name="ns-3.38-simbricks">
       <source type="git">
         <attribute name="url" value="https://github.com/marvin71/simbricks.git"/>
@@ -2673,7 +2686,7 @@
       </source>
       <depends_on name="ns-3.38-simbricks" optional="False"/>
       <depends_on name="glibc-2.31" optional="False"/>
-      <depends_on name="linux-dev" optional="False"/>
+      <depends_on name="linux-6.7.5" optional="False"/>
       <depends_on name="libaspect" optional="True"/>
       <depends_on name="iperf" optional="True"/>
       <depends_on name="wget" optional="True"/>
