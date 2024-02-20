@@ -2660,7 +2660,7 @@
         ns3_path = os.path.join(env.srcdir, 'sims/external/ns-3')
         env._logger.commands.write("NS3 directory: " + ns3_path + "\n")
         env.run(['./ns3', 'configure', '--build-profile=default', '--enable-examples', '--prefix=' + env.installdir], directory=ns3_path)
-        env.run(['./ns3', 'build'], directory=ns3_path)
+        env.run(['./ns3', 'build'] + jobstr, directory=ns3_path)
         cwd_save = os.getcwd()
         pkgconfig_path = os.path.join(ns3_path, 'cmake-cache/pkgconfig')
         os.chdir(pkgconfig_path)
