@@ -2681,10 +2681,7 @@
     </module>
 
     <module name="dce-simbricks-meta-1.12">
-      <source type="git">
-	<attribute name="url" value="https://github.com/marvin71/ns-3-dce.git"/>        
-        <attribute name="module_directory" value="ns-3-dce"/>
-        <attribute name="branch" value="simbricks"/>
+      <source type="none">
       </source>
       <depends_on name="ns-3.38-simbricks" optional="False"/>
       <depends_on name="glibc-2.31" optional="False"/>
