@@ -2869,6 +2869,7 @@
     <enable name="dce-simbricks-ns3-1.12"/>
     <disable name="libaspect"/>
     <disable name="thttpd"/>
+    <disable name="bash"/>
   </predefined>
 
 </configuration>
