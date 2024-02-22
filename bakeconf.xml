@@ -204,11 +204,14 @@
     def __init__(self):
         InlineModuleBuild.__init__(self)
     def build(self, env, jobs):
+           jobstr=[]
+           if not jobs == -1:
+               jobstr = ['-j', str(jobs)]
            build_dir = env.installdir + '/glibc-build'
            install_dir = env.installdir + '/glibc'
            dest_dir = 'DESTDIR=' + install_dir
            env.run(['mkdir', '-p', install_dir], directory=env.srcdir)
-           env.run(['make'], directory=build_dir)
+           env.run(['make'] + jobstr, directory=build_dir)
            env.run(['make', 'install', dest_dir], directory=build_dir)
     def clean(self, env):
            build_dir = env.installdir + '/glibc-build'
